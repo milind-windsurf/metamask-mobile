@@ -6,8 +6,8 @@ declare global {
   namespace NodeJS {
     interface Global {
       ErrorUtils: {
-        getGlobalHandler(): (error: Error, isFatal?: boolean) => void;
-        setGlobalHandler(handler: (error: Error, isFatal?: boolean) => void): void;
+        getGlobalHandler(): (error: any, isFatal?: boolean) => void;
+        setGlobalHandler(handler: (error: any, isFatal?: boolean) => void): void;
       };
     }
   }
@@ -96,7 +96,9 @@ AppRegistry.registerComponent(name, () =>
 function setupGlobalErrorHandler(): void {
   const reactNativeDefaultHandler = global.ErrorUtils.getGlobalHandler();
   setReactNativeDefaultHandler(reactNativeDefaultHandler);
-  global.ErrorUtils.setGlobalHandler(handleCustomError);
+  global.ErrorUtils.setGlobalHandler((error: any, isFatal?: boolean) => {
+    handleCustomError(error, isFatal ?? false);
+  });
 }
 
 setupGlobalErrorHandler();
