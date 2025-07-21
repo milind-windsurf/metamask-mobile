@@ -59,6 +59,7 @@
     "allowImportingTsExtensions": true
   },
   "include": [
+    "index.ts",
     "app/declarations/index.d.ts",
     "app/**/*",
     "node_modules/expect-webdriverio",
