@@ -2,18 +2,6 @@ import './shim.js';
 
 import 'react-native-gesture-handler';
 
-declare global {
-  namespace NodeJS {
-    interface Global {
-      ErrorUtils: {
-        getGlobalHandler(): (error: any, isFatal?: boolean) => void;
-        setGlobalHandler(handler: (error: any, isFatal?: boolean) => void): void;
-      };
-    }
-  }
-}
-
-declare const global: NodeJS.Global;
 
 import * as Sentry from '@sentry/react-native'; // eslint-disable-line import/no-namespace
 import { setupSentry } from './app/util/sentry/utils';
@@ -94,9 +82,15 @@ AppRegistry.registerComponent(name, () =>
 );
 
 function setupGlobalErrorHandler(): void {
-  const reactNativeDefaultHandler = global.ErrorUtils.getGlobalHandler();
+  const globalWithErrorUtils = global as typeof global & {
+    ErrorUtils: {
+      getGlobalHandler(): (error: Error, isFatal?: boolean) => void;
+      setGlobalHandler(handler: (error: Error, isFatal?: boolean) => void): void;
+    };
+  };
+  const reactNativeDefaultHandler = globalWithErrorUtils.ErrorUtils.getGlobalHandler();
   setReactNativeDefaultHandler(reactNativeDefaultHandler);
-  global.ErrorUtils.setGlobalHandler((error: any, isFatal?: boolean) => {
+  globalWithErrorUtils.ErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
     handleCustomError(error, isFatal ?? false);
   });
 }
