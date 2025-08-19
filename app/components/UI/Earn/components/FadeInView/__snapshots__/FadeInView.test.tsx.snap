@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FadeInView should match snapshot 1`] = `
+<View
+  collapsable={false}
+  style={
+    {
+      "opacity": 0,
+    }
+  }
+>
+  <Text>
+    Snapshot test content
+  </Text>
+</View>
+`;
+
+exports[`FadeInView should match snapshot with custom props 1`] = `
+<View
+  collapsable={false}
+  style={
+    {
+      "backgroundColor": "blue",
+    }
+  }
+  testID="custom-fade-in"
+>
+  <Text>
+    Custom snapshot content
+  </Text>
+</View>
+`;
