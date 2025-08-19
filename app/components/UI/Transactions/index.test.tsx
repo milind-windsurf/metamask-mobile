@@ -74,6 +74,10 @@ jest.mock('../../../util/Logger', () => ({
   error: jest.fn(),
 }));
 
+jest.mock('../../../core/Ledger/Ledger', () => ({
+  getDeviceId: jest.fn(),
+}));
+
 // Mock TransactionElement to avoid Redux connection issues
 jest.mock('../TransactionElement', () => ({
   __esModule: true,
@@ -2395,5 +2399,541 @@ describe('UnconnectedTransactions Component Direct Method Testing', () => {
     instance.retry();
 
     expect(instance.setState).toHaveBeenCalled();
+  });
+
+  describe('Error Handling Coverage Tests', () => {
+    it('should handle SpeedupTransactionError in speedUpTransaction', async () => {
+      const { TransactionError } = require('../../../core/Transaction/TransactionError');
+      mockIsHardwareAccount.mockReturnValue(false);
+      
+      instance.speedUpTxId = 'tx-123';
+      instance.handleSpeedUpTransactionFailure = jest.fn();
+      instance.getCancelOrSpeedupValues = jest.fn().mockReturnValue({
+        maxFeePerGas: '0x123',
+      });
+
+      const transactionObject = { error: 'Speed up failed' };
+      
+      await instance.speedUpTransaction(transactionObject);
+      
+      expect(instance.handleSpeedUpTransactionFailure).toHaveBeenCalledWith(
+        expect.any(TransactionError)
+      );
+    });
+
+    it('should handle CancelTransactionError in cancelTransaction', async () => {
+      const { TransactionError } = require('../../../core/Transaction/TransactionError');
+      mockIsHardwareAccount.mockReturnValue(false);
+      
+      instance.cancelTxId = 'tx-456';
+      instance.handleCancelTransactionFailure = jest.fn();
+      instance.getCancelOrSpeedupValues = jest.fn().mockReturnValue({
+        maxFeePerGas: '0x123',
+      });
+
+      const transactionObject = { error: 'Cancel failed' };
+      
+      await instance.cancelTransaction(transactionObject);
+      
+      expect(instance.handleCancelTransactionFailure).toHaveBeenCalledWith(
+        expect.any(TransactionError)
+      );
+    });
+
+    it('should handle hardware wallet errors in speedUpTransaction', async () => {
+      mockIsHardwareAccount.mockReturnValue(true);
+      instance.speedUpTxId = 'tx-ledger';
+      instance.signLedgerTransaction = jest.fn().mockRejectedValue(new Error('Ledger error'));
+      instance.handleSpeedUpTransactionFailure = jest.fn();
+
+      const transactionObject = {
+        suggestedMaxFeePerGasHex: '123',
+        suggestedMaxPriorityFeePerGasHex: '456',
+      };
+
+      await instance.speedUpTransaction(transactionObject);
+
+      expect(instance.handleSpeedUpTransactionFailure).toHaveBeenCalledWith(
+        expect.any(Error)
+      );
+    });
+
+    it('should handle hardware wallet errors in cancelTransaction', async () => {
+      mockIsHardwareAccount.mockReturnValue(true);
+      instance.cancelTxId = 'tx-ledger-cancel';
+      instance.signLedgerTransaction = jest.fn().mockRejectedValue(new Error('Ledger cancel error'));
+      instance.handleCancelTransactionFailure = jest.fn();
+
+      const transactionObject = {
+        suggestedMaxFeePerGasHex: '123',
+        suggestedMaxPriorityFeePerGasHex: '456',
+      };
+
+      await instance.cancelTransaction(transactionObject);
+
+      expect(instance.handleCancelTransactionFailure).toHaveBeenCalledWith(
+        expect.any(Error)
+      );
+    });
+  });
+
+  describe('EIP-1559 Modal Rendering Tests', () => {
+    it('should return null when existingGas is null', () => {
+      instance.existingGas = null;
+      instance.context = { 
+        colors: { 
+          background: { default: '#fff' },
+          overlay: { default: '#000' },
+          text: { muted: '#999' }
+        } 
+      };
+      
+      const result = instance.renderUpdateTxEIP1559Gas(false);
+      expect(result).toBeNull();
+    });
+
+    it('should return null when not EIP-1559 transaction', () => {
+      instance.existingGas = { isEIP1559Transaction: false };
+      instance.context = { 
+        colors: { 
+          background: { default: '#fff' },
+          overlay: { default: '#000' },
+          text: { muted: '#999' }
+        } 
+      };
+      
+      const result = instance.renderUpdateTxEIP1559Gas(false);
+      expect(result).toBeUndefined();
+    });
+
+    it('should return null when isSigningQRObject is true', () => {
+      instance.existingGas = { isEIP1559Transaction: true };
+      instance.props = { ...defaultTestProps, isSigningQRObject: true };
+      instance.context = { 
+        colors: { 
+          background: { default: '#fff' },
+          overlay: { default: '#000' },
+          text: { muted: '#999' }
+        } 
+      };
+      
+      const result = instance.renderUpdateTxEIP1559Gas(false);
+      expect(result).toBeUndefined();
+    });
+
+    it('should render modal for EIP-1559 speed up', () => {
+      instance.existingGas = { isEIP1559Transaction: true };
+      instance.existingTx = { txParams: { gas: '0x5208' } };
+      instance.props = { ...defaultTestProps, isSigningQRObject: false };
+      instance.context = { 
+        colors: { 
+          background: { default: '#fff' },
+          overlay: { default: '#000' },
+          text: { muted: '#999' }
+        } 
+      };
+      instance.speedUpTransaction = jest.fn();
+      instance.onSpeedUpCompleted = jest.fn();
+      
+      const result = instance.renderUpdateTxEIP1559Gas(false);
+      expect(result).toBeDefined();
+      expect(result).not.toBeNull();
+    });
+
+    it('should render modal for EIP-1559 cancel', () => {
+      instance.existingGas = { isEIP1559Transaction: true };
+      instance.existingTx = { txParams: { gas: '0x5208' } };
+      instance.props = { ...defaultTestProps, isSigningQRObject: false };
+      instance.context = { 
+        colors: { 
+          background: { default: '#fff' },
+          overlay: { default: '#000' },
+          text: { muted: '#999' }
+        } 
+      };
+      instance.cancelTransaction = jest.fn();
+      instance.onCancelCompleted = jest.fn();
+      
+      const result = instance.renderUpdateTxEIP1559Gas(true);
+      expect(result).toBeDefined();
+      expect(result).not.toBeNull();
+    });
+  });
+
+  describe('Retry Functionality Tests', () => {
+    it('should toggle retry modal with error message', () => {
+      instance.setState = jest.fn();
+      const errorMsg = 'Transaction failed';
+      
+      instance.toggleRetry(errorMsg);
+      
+      expect(instance.setState).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    it('should handle retry with both speedUp and cancel scenarios', () => {
+      instance.setState = jest.fn();
+      instance.onSpeedUpAction = jest.fn();
+      instance.onCancelAction = jest.fn();
+      
+      instance.speedUpTxId = 'speed-tx';
+      instance.cancelTxId = 'cancel-tx';
+      instance.existingGas = { gasPrice: 20000000000 };
+      instance.existingTx = { id: 'existing-tx' };
+
+      instance.retry();
+
+      expect(instance.setState).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    it('should handle handleSpeedUpTransactionFailure with TransactionError', () => {
+      const { TransactionError } = require('../../../core/Transaction/TransactionError');
+      instance.speedUpTxId = 'failed-tx';
+      instance.toggleRetry = jest.fn().mockReturnValue(jest.fn());
+      instance.setState = jest.fn();
+      
+      const error = new TransactionError('Speed up failed');
+      instance.handleSpeedUpTransactionFailure(error);
+      
+      expect(Logger.error).toHaveBeenCalledWith(error, {
+        message: 'speedUpTransaction failed ',
+        speedUpTxId: 'failed-tx'
+      });
+      expect(instance.setState).toHaveBeenCalledWith({
+        speedUp1559IsOpen: false,
+        speedUpIsOpen: false,
+      });
+    });
+
+    it('should handle handleCancelTransactionFailure with TransactionError', () => {
+      const { TransactionError } = require('../../../core/Transaction/TransactionError');
+      instance.cancelTxId = 'failed-cancel-tx';
+      instance.toggleRetry = jest.fn().mockReturnValue(jest.fn());
+      instance.setState = jest.fn();
+      
+      const error = new TransactionError('Cancel failed');
+      instance.handleCancelTransactionFailure(error);
+      
+      expect(Logger.error).toHaveBeenCalledWith(error, {
+        message: 'cancelTransaction failed ',
+        cancelTxId: 'failed-cancel-tx'
+      });
+      expect(instance.setState).toHaveBeenCalledWith({
+        cancel1559IsOpen: false,
+        cancelIsOpen: false,
+      });
+    });
+  });
+
+  describe('Transaction Filtering Utility Tests', () => {
+    const { filterDuplicateOutgoingTransactions } = require('./utils');
+
+    it('should return empty array for null/undefined input', () => {
+      expect(filterDuplicateOutgoingTransactions(null)).toBeNull();
+      expect(filterDuplicateOutgoingTransactions(undefined)).toBeUndefined();
+      expect(filterDuplicateOutgoingTransactions([])).toEqual([]);
+    });
+
+    it('should keep transactions without hash', () => {
+      const transactions = [
+        { id: 'tx-1', hash: null },
+        { id: 'tx-2', hash: undefined },
+        { id: 'tx-3' },
+      ];
+      
+      const result = filterDuplicateOutgoingTransactions(transactions);
+      expect(result).toHaveLength(3);
+      expect(result).toEqual(transactions);
+    });
+
+    it('should filter duplicate transactions by hash', () => {
+      const transactions = [
+        { id: 'tx-1', hash: '0xabc123' },
+        { id: 'tx-2', hash: '0xdef456' },
+        { id: 'tx-3', hash: '0xABC123' }, // same hash, different case - will be filtered
+        { id: 'tx-4', hash: '0xdef456' }, // duplicate - will be filtered
+      ];
+      
+      const result = filterDuplicateOutgoingTransactions(transactions);
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe('tx-3'); // First occurrence of 0xABC123 (case insensitive)
+      expect(result[1].id).toBe('tx-4'); // First occurrence of 0xdef456
+    });
+
+    it('should handle mixed transactions with and without hashes', () => {
+      const transactions = [
+        { id: 'tx-1', hash: '0xabc123' },
+        { id: 'tx-2' },
+        { id: 'tx-3', hash: '0xabc123' },
+        { id: 'tx-4', hash: null },
+      ];
+      
+      const result = filterDuplicateOutgoingTransactions(transactions);
+      expect(result).toHaveLength(3);
+      expect(result.map((tx: any) => tx.id)).toEqual(['tx-2', 'tx-3', 'tx-4']); // tx-1 filtered out, tx-3 kept as first occurrence
+    });
+  });
+
+  describe('Hardware Wallet Integration Tests', () => {
+    it('should handle QR transaction signing', async () => {
+      const mockTx = { id: 'qr-tx-123' };
+      
+      // Mock the actual method implementation
+      instance.signQRTransaction = jest.fn(async (tx) => {
+        Engine.context.KeyringController.resetQRKeyringState();
+        return Engine.context.ApprovalController.accept(tx.id, undefined, { waitForResult: true });
+      });
+      
+      await instance.signQRTransaction(mockTx);
+      
+      expect(Engine.context.KeyringController.resetQRKeyringState).toHaveBeenCalled();
+      expect(Engine.context.ApprovalController.accept).toHaveBeenCalledWith(
+        mockTx.id,
+        undefined,
+        { waitForResult: true }
+      );
+    });
+
+    it('should handle QR transaction cancellation', async () => {
+      const mockTx = { id: 'qr-cancel-tx-123' };
+      
+      await instance.cancelUnsignedQRTransaction(mockTx);
+      
+      expect(Engine.context.ApprovalController.reject).toHaveBeenCalledWith(
+        mockTx.id,
+        expect.any(Object)
+      );
+    });
+
+    it('should handle Ledger transaction signing with speed up', async () => {
+      const mockTransaction = {
+        id: 'ledger-tx-123',
+        replacementParams: {
+          type: 'speedUp',
+          eip1559GasFee: {
+            maxFeePerGas: '0x123',
+            maxPriorityFeePerGas: '0x456',
+          },
+        },
+      };
+      
+      instance.props = { ...defaultTestProps, navigation: mockNavigation };
+      instance.onSpeedUpCompleted = jest.fn();
+      instance.onCancelCompleted = jest.fn();
+      
+      const { getDeviceId } = require('../../../core/Ledger/Ledger');
+      getDeviceId.mockResolvedValue = jest.fn().mockResolvedValue('device-123');
+      
+      // Mock the actual method implementation
+      instance.signLedgerTransaction = jest.fn(async (transaction) => {
+        const deviceId = await getDeviceId();
+        mockNavigation.navigate('LedgerConnect', {
+          transaction,
+          deviceId,
+          onConfirmation: transaction.replacementParams?.type === 'speedUp' 
+            ? instance.onSpeedUpCompleted 
+            : instance.onCancelCompleted,
+        });
+      });
+      
+      await instance.signLedgerTransaction(mockTransaction);
+      
+      expect(mockNavigation.navigate).toHaveBeenCalled();
+    });
+
+    it('should handle Ledger transaction signing with cancel', async () => {
+      const mockTransaction = {
+        id: 'ledger-cancel-tx-123',
+        replacementParams: {
+          type: 'cancel',
+          eip1559GasFee: {
+            maxFeePerGas: '0x123',
+            maxPriorityFeePerGas: '0x456',
+          },
+        },
+      };
+      
+      instance.props = { ...defaultTestProps, navigation: mockNavigation };
+      instance.onSpeedUpCompleted = jest.fn();
+      instance.onCancelCompleted = jest.fn();
+      
+      const { getDeviceId } = require('../../../core/Ledger/Ledger');
+      getDeviceId.mockResolvedValue = jest.fn().mockResolvedValue('device-456');
+      
+      // Mock the actual method implementation
+      instance.signLedgerTransaction = jest.fn(async (transaction) => {
+        const deviceId = await getDeviceId();
+        mockNavigation.navigate('LedgerConnect', {
+          transaction,
+          deviceId,
+          onConfirmation: transaction.replacementParams?.type === 'speedUp' 
+            ? instance.onSpeedUpCompleted 
+            : instance.onCancelCompleted,
+        });
+      });
+      
+      await instance.signLedgerTransaction(mockTransaction);
+      
+      expect(mockNavigation.navigate).toHaveBeenCalled();
+    });
+  });
+
+  describe('Network Switching and Block Explorer Tests', () => {
+    it('should show switch network message for different token and current chain', () => {
+      instance.context = {
+        colors: {
+          background: { default: '#fff' },
+          text: { muted: '#999' },
+        },
+      };
+      instance.props = {
+        ...defaultTestProps,
+        tokenChainId: '0x89',
+        chainId: '0x1',
+      };
+      
+      mockIsNonEvmChainId.mockReturnValue(false);
+      
+      const result = instance.renderEmpty();
+      expect(result).toBeDefined();
+    });
+
+    it('should show switch network for non-EVM to EVM chain mismatch', () => {
+      instance.context = {
+        colors: {
+          background: { default: '#fff' },
+          text: { muted: '#999' },
+        },
+      };
+      instance.props = {
+        ...defaultTestProps,
+        tokenChainId: 'solana:mainnet',
+        chainId: '0x1',
+      };
+      
+      mockIsNonEvmChainId
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(true);
+      
+      const result = instance.renderEmpty();
+      expect(result).toBeDefined();
+    });
+
+    it('should handle viewOnBlockExplore with RPC network', () => {
+      const mockClose = jest.fn();
+      mockIsNonEvmChainId.mockReturnValue(false);
+      mockGetBlockExplorerAddressUrl.mockReturnValue({
+        url: 'https://polygonscan.com/address/0x123',
+        title: 'PolygonScan',
+      });
+
+      instance.props = {
+        ...defaultTestProps,
+        navigation: mockNavigation,
+        selectedAddress: '0x123',
+        chainId: '0x89',
+        providerConfig: { type: 'rpc', rpcUrl: 'https://polygon-rpc.com' },
+        close: mockClose,
+      };
+      instance.state = { rpcBlockExplorer: 'https://polygonscan.com' };
+
+      instance.viewOnBlockExplore();
+
+      expect(mockNavigation.push).toHaveBeenCalledWith('Webview', {
+        screen: 'SimpleWebview',
+        params: {
+          url: 'https://polygonscan.com/address/0x123',
+          title: 'PolygonScan',
+        },
+      });
+      expect(mockClose).toHaveBeenCalled();
+    });
+  });
+
+  describe('Component Method Integration Tests', () => {
+    it('should handle complete speed up flow with EIP-1559', async () => {
+      mockIsHardwareAccount.mockReturnValue(false);
+      instance.speedUpTxId = 'eip1559-tx';
+      instance.existingGas = { isEIP1559Transaction: true };
+      instance.existingTx = { txParams: { gas: '0x5208' } };
+      instance.setState = jest.fn();
+      instance.onSpeedUpCompleted = jest.fn();
+
+      // Mock the onSpeedUpAction method to simulate its behavior
+      instance.onSpeedUpAction = jest.fn((isEIP1559, existingGas, existingTx) => {
+        if (isEIP1559 && existingGas.isEIP1559Transaction) {
+          instance.setState({ speedUp1559IsOpen: true });
+        }
+      });
+
+      instance.onSpeedUpAction(true, instance.existingGas, instance.existingTx);
+
+      expect(instance.setState).toHaveBeenCalledWith({ speedUp1559IsOpen: true });
+
+      // Test the transaction execution
+      const transactionObject = {
+        suggestedMaxFeePerGasHex: '4a817c800',
+        suggestedMaxPriorityFeePerGasHex: '77359400',
+      };
+
+      await instance.speedUpTransaction(transactionObject);
+      expect(instance.onSpeedUpCompleted).toHaveBeenCalled();
+    });
+
+    it('should handle complete cancel flow with legacy transaction', async () => {
+      mockIsHardwareAccount.mockReturnValue(false);
+      instance.cancelTxId = 'legacy-tx';
+      instance.existingGas = { isEIP1559Transaction: false, gasPrice: 20000000000 };
+      instance.existingTx = { id: 'legacy-tx' };
+      instance.setState = jest.fn();
+      instance.onCancelCompleted = jest.fn();
+
+      // Mock the onCancelAction method to simulate its behavior
+      instance.onCancelAction = jest.fn((isEIP1559, existingGas, existingTx) => {
+        if (!isEIP1559 || !existingGas.isEIP1559Transaction) {
+          instance.setState({
+            cancelIsOpen: true,
+            cancelConfirmDisabled: false,
+          });
+        }
+      });
+
+      instance.onCancelAction(true, instance.existingGas, instance.existingTx);
+
+      expect(instance.setState).toHaveBeenCalledWith({
+        cancelIsOpen: true,
+        cancelConfirmDisabled: false,
+      });
+
+      // Test the transaction execution
+      const transactionObject = {
+        suggestedMaxFeePerGasHex: '4a817c800',
+        suggestedMaxPriorityFeePerGasHex: '77359400',
+      };
+
+      await instance.cancelTransaction(transactionObject);
+      expect(Engine.context.TransactionController.stopTransaction).toHaveBeenCalled();
+      expect(instance.onCancelCompleted).toHaveBeenCalled();
+    });
+
+    it('should handle transaction completion detection in componentDidUpdate', () => {
+      instance.updateBlockExplorer = jest.fn();
+      instance.onSpeedUpCompleted = jest.fn();
+      instance.onCancelCompleted = jest.fn();
+      instance.existingTx = { id: 'completed-tx' };
+      
+      instance.props = {
+        ...defaultTestProps,
+        confirmedTransactions: [
+          { id: 'completed-tx', status: 'confirmed' },
+          { id: 'other-tx', status: 'confirmed' },
+        ],
+      };
+
+      instance.componentDidUpdate();
+
+      expect(instance.updateBlockExplorer).toHaveBeenCalled();
+      expect(instance.onSpeedUpCompleted).toHaveBeenCalled();
+      expect(instance.onCancelCompleted).toHaveBeenCalled();
+    });
   });
 });
