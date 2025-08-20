@@ -1,11 +1,18 @@
+import {
+  NetworkSelectorActionType,
+  NetworkOnboardedAction,
+  NetworkSwitchedAction,
+  ShowNetworkOnboardingAction,
+} from '../networkSelector/types';
+
 /**
  * Handle the onboarding network action
  *
  * @param {object} chainId - The chain ID of the current selected network
  * @returns
  */
-export const onboardNetworkAction = (chainId: string) => ({
-  type: 'NETWORK_ONBOARDED',
+export const onboardNetworkAction = (chainId: string): NetworkOnboardedAction => ({
+  type: NetworkSelectorActionType.NETWORK_ONBOARDED,
   payload: chainId,
 });
 
@@ -15,8 +22,8 @@ export const networkSwitched = ({
 }: {
   networkUrl: string;
   networkStatus: boolean;
-}) => ({
-  type: 'NETWORK_SWITCHED',
+}): NetworkSwitchedAction => ({
+  type: NetworkSelectorActionType.NETWORK_SWITCHED,
   networkUrl,
   networkStatus,
 });
@@ -31,8 +38,8 @@ export const showNetworkOnboardingAction = ({
   networkType: string;
   nativeToken: string;
   showNetworkOnboarding: boolean;
-}) => ({
-  type: 'SHOW_NETWORK_ONBOARDING',
+}): ShowNetworkOnboardingAction => ({
+  type: NetworkSelectorActionType.SHOW_NETWORK_ONBOARDING,
   networkUrl,
   networkType,
   nativeToken,

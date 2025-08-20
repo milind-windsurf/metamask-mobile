@@ -1,4 +1,7 @@
-export const initialState = {
+import { NetworkSelectorAction, NetworkSelectorActionType } from '../../actions/networkSelector/types';
+import { NetworkSelectorState } from './types';
+
+export const initialState: NetworkSelectorState = {
   networkOnboardedState: {},
   networkState: {
     showNetworkOnboarding: false,
@@ -19,29 +22,11 @@ export const initialState = {
  */
 
 function networkOnboardReducer(
-  state = initialState,
-  action: {
-    nativeToken: string;
-    networkType: string;
-    networkUrl: string;
-    networkStatus: boolean;
-    showNetworkOnboarding: boolean;
-    type: string;
-    // TODO: Replace "any" with type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    payload: any;
-  } = {
-    nativeToken: '',
-    networkType: '',
-    networkUrl: '',
-    networkStatus: false,
-    showNetworkOnboarding: false,
-    type: '',
-    payload: undefined,
-  },
-) {
+  state: NetworkSelectorState = initialState,
+  action: NetworkSelectorAction,
+): NetworkSelectorState {
   switch (action.type) {
-    case 'SHOW_NETWORK_ONBOARDING':
+    case NetworkSelectorActionType.SHOW_NETWORK_ONBOARDING:
       return {
         ...state,
         networkState: {
@@ -51,7 +36,7 @@ function networkOnboardReducer(
           networkUrl: action.networkUrl,
         },
       };
-    case 'NETWORK_SWITCHED':
+    case NetworkSelectorActionType.NETWORK_SWITCHED:
       return {
         ...state,
         switchedNetwork: {
@@ -59,7 +44,7 @@ function networkOnboardReducer(
           networkStatus: action.networkStatus,
         },
       };
-    case 'NETWORK_ONBOARDED':
+    case NetworkSelectorActionType.NETWORK_ONBOARDED:
       return {
         ...state,
         networkState: {
