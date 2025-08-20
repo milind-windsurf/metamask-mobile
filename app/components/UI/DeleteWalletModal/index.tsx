@@ -109,7 +109,7 @@ const DeleteWalletModal: React.FC = () => {
 
   const deleteWallet = async () => {
     await dispatch(
-      clearHistory(isEnabled(), isDataCollectionForMarketingEnabled),
+      clearHistory(isEnabled(), isDataCollectionForMarketingEnabled ?? false),
     );
     signOut();
     await CookieManager.clearAll(true);

@@ -2,6 +2,8 @@ import { UrlAutocompleteCategory } from '../components/UI/UrlAutocomplete';
 import { RootState } from '../reducers';
 import { createDeepEqualSelector } from './util';
 
+import { Bookmark } from '../actions/bookmarks/types';
+
 interface SiteItem {
   url: string;
   name: string;
@@ -20,7 +22,7 @@ export const selectBrowserHistoryWithType = createDeepEqualSelector(
 
 export const selectBrowserBookmarksWithType = createDeepEqualSelector(
   (state: RootState) => state.bookmarks,
-  (bookmarks: SiteItem[]) =>
+  (bookmarks: Bookmark[]) =>
     bookmarks.map(
       (item) =>
         ({ ...item, category: UrlAutocompleteCategory.Favorites } as const),

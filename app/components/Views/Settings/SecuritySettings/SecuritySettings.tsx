@@ -403,7 +403,7 @@ const Settings: React.FC = () => {
   );
 
   const clearBrowserHistory = () => {
-    dispatch(clearHistory(isEnabled(), isDataCollectionForMarketingEnabled));
+    dispatch(clearHistory(isEnabled(), isDataCollectionForMarketingEnabled ?? false));
     toggleClearBrowserHistoryModal();
   };
 

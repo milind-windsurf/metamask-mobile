@@ -429,8 +429,11 @@ describe('captureSentryFeedback', () => {
           },
         },
       },
-      privacy: {},
-      bookmarks: {},
+      privacy: {
+        approvedHosts: {},
+        revealSRPTimestamps: [],
+      },
+      bookmarks: [],
       browser: {
         activeTab: null,
         favicons: [],
