@@ -91,7 +91,6 @@ const mockInitialState: DeepPartial<RootState> = {
         result_type: 'Malicious',
         reason: 'blur_farming',
         providerRequestsCount: {},
-        chainId: '0x1',
       },
     },
     selectedAsset: {},
