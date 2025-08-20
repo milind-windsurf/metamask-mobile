@@ -1,0 +1,96 @@
+
+dockerfile_linting:
+  enabled: true
+  rules:
+    - DL3000  # Use absolute WORKDIR
+    - DL3001  # For some bash commands it makes no sense running them in a Docker container
+    - DL3002  # Last USER should not be root
+    - DL3003  # Use WORKDIR to switch to a directory
+    - DL3004  # Do not use sudo as it leads to unpredictable behavior
+    - DL3006  # Always tag the version of an image explicitly
+    - DL3007  # Using latest is prone to errors if the image will ever update
+    - DL3008  # Pin versions in apt get install
+    - DL3009  # Delete the apt-get lists after installing something
+    - DL3010  # Use ADD for extracting archives into an image
+
+security_scanning:
+  enabled: true
+  severity_threshold: "HIGH"  # UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL
+  ignore_unfixed: false
+  timeout: "10m"
+
+image_analysis:
+  enabled: true
+  max_layers: 50
+  max_size_mb: 2048
+  efficiency_threshold: 0.9
+
+best_practices:
+  require_non_root_user: true
+  require_health_check: false
+  require_labels: true
+  disallow_latest_tag: true
+  required_labels:
+    - "maintainer"
+    - "version"
+  
+repositories:
+  "bp/business-growth":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "MEDIUM"
+  
+  "bp/rag-pipelines":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "HIGH"
+  
+  "bpia/bpia-aws-darknet":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "CRITICAL"
+  
+  "bpia/bpia-yolov5":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "HIGH"
+  
+  "cama/cama-smartcomms":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "HIGH"
+  
+  "caspian/datahub-ingestion":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "HIGH"
+  
+  "caspian/genchi-data-drift":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "MEDIUM"
+  
+  "caspian/hubble-lineage-calculation":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "HIGH"
+  
+  "caspian/hubble-pagerank-calculation":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "HIGH"
+  
+  "caspian/poseidon-spark3-curated":
+    dockerfile_linting:
+      enabled: true
+    security_scanning:
+      severity_threshold: "HIGH"
