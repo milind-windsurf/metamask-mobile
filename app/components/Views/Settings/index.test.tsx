@@ -19,8 +19,18 @@ import { Authentication } from '../../../core';
 
 const initialState = {
   user: { seedphraseBackedUp: true, passwordSet: true },
-  privacy: { approvedHosts: [] },
-  browser: { history: [] },
+  privacy: { 
+    approvedHosts: {},
+    revealSRPTimestamps: [],
+  },
+  browser: { 
+    history: [],
+    whitelist: [],
+    tabs: [],
+    favicons: [],
+    activeTab: null,
+    visitedDappsByHostname: {},
+  },
   settings: {
     lockTime: 1000,
     searchEngine: 'Google',

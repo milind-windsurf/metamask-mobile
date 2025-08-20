@@ -302,8 +302,20 @@ function setupGlobalState({
       browser: activeTab
         ? {
             activeTab,
+            history: [],
+            whitelist: [],
+            tabs: [],
+            favicons: [],
+            visitedDappsByHostname: {},
           }
-        : {},
+        : {
+            history: [],
+            whitelist: [],
+            tabs: [],
+            favicons: [],
+            activeTab: null,
+            visitedDappsByHostname: {},
+          },
       engine: {
         backgroundState: {
           ...backgroundState,

@@ -27,7 +27,8 @@ import {
   selectStablecoinLendingEnabledFlag,
 } from '../../../Earn/selectors/featureFlags';
 import createStyles from '../../../Tokens/styles';
-import { BrowserTab, TokenI } from '../../../Tokens/types';
+import { TokenI } from '../../../Tokens/types';
+import { BrowserTab } from '../../../../../actions/browser/types';
 import { EVENT_LOCATIONS } from '../../constants/events';
 import useStakingChain from '../../hooks/useStakingChain';
 import useStakingEligibility from '../../hooks/useStakingEligibility';
