@@ -20,7 +20,7 @@ import {
   IDENTITY_TEAM_PASSWORD,
   IDENTITY_TEAM_SEED_PHRASE,
 } from '../identity/utils/constants';
-import SoftAssert from '../../utils/SoftAssert';
+import { SoftAssert } from '../../framework';
 import { MockttpServer } from 'mockttp';
 
 const balanceMock = getBalanceMocks([

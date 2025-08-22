@@ -4,11 +4,27 @@ import { AssertionOptions } from './types';
 import Matchers from './Matchers';
 
 /**
- * Assertions with auto-retry and better error messages
+ * Assertions class providing robust element verification with auto-retry mechanisms and enhanced error messages.
+ * All assertion methods include automatic retry logic and detailed error reporting for better test reliability.
  */
 export default class Assertions {
   /**
-   * Assert element is visible with auto-retry
+   * Assert that an element is visible with automatic retry mechanism.
+   * 
+   * @param detoxElement - The Detox element to check for visibility
+   * @param options - Configuration options for the assertion
+   * @param options.timeout - Maximum time to wait for the element (default: 15000ms)
+   * @param options.description - Custom description for better error messages
+   * @returns Promise that resolves when the element becomes visible
+   * @throws Will throw an error if the element is not visible within the timeout period
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.expectElementToBeVisible(loginButton, { 
+   *   timeout: 10000, 
+   *   description: 'Login button should be visible' 
+   * });
+   * ```
    */
   static async expectElementToBeVisible(
     detoxElement:
@@ -28,7 +44,8 @@ export default class Assertions {
         const el = await detoxElement;
         const isWebElement = Utilities.isWebElement(el);
         if (isWebElement) {
-          // eslint-disable-next-line jest/valid-expect, @typescript-eslint/no-explicit-any
+          // Web elements use Detox's expect with toExist method - unavoidable any due to Detox API limitations
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (expect(el) as any).toExist();
         } else if (device.getPlatform() === 'ios') {
           await waitFor(el).toExist().withTimeout(100);
@@ -44,7 +61,22 @@ export default class Assertions {
   }
 
   /**
-   * Assert element is not visible with auto-retry
+   * Assert that an element is not visible with automatic retry mechanism.
+   * 
+   * @param detoxElement - The Detox element to check for invisibility
+   * @param options - Configuration options for the assertion
+   * @param options.timeout - Maximum time to wait for the element to disappear (default: 15000ms)
+   * @param options.description - Custom description for better error messages
+   * @returns Promise that resolves when the element becomes invisible
+   * @throws Will throw an error if the element remains visible within the timeout period
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.expectElementToNotBeVisible(loadingSpinner, { 
+   *   timeout: 5000, 
+   *   description: 'Loading spinner should disappear' 
+   * });
+   * ```
    */
   static async expectElementToNotBeVisible(
     detoxElement:
@@ -64,7 +96,8 @@ export default class Assertions {
         const el = await detoxElement;
         const isWebElement = Utilities.isWebElement(el);
         if (isWebElement) {
-          // eslint-disable-next-line jest/valid-expect, @typescript-eslint/no-explicit-any
+          // Web elements use Detox's expect with toExist method - unavoidable any due to Detox API limitations
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (expect(el) as any).not.toExist();
         } else {
           await waitFor(el).not.toBeVisible().withTimeout(100);
@@ -78,7 +111,23 @@ export default class Assertions {
   }
 
   /**
-   * Assert element has specific text with auto-retry
+   * Assert that an element contains specific text with automatic retry mechanism.
+   * 
+   * @param detoxElement - The Detox element to check for text content
+   * @param text - The exact text that should be present in the element
+   * @param options - Configuration options for the assertion
+   * @param options.timeout - Maximum time to wait for the text to appear (default: 15000ms)
+   * @param options.description - Custom description for better error messages
+   * @returns Promise that resolves when the element contains the specified text
+   * @throws Will throw an error if the element doesn't contain the text within the timeout period
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.expectElementToHaveText(statusLabel, 'Connected', { 
+   *   timeout: 8000, 
+   *   description: 'Status should show Connected' 
+   * });
+   * ```
    */
   static async expectElementToHaveText(
     detoxElement: DetoxElement,
@@ -103,7 +152,23 @@ export default class Assertions {
   }
 
   /**
-   * Assert element does not have specific text with auto-retry
+   * Assert that an element does not contain specific text with automatic retry mechanism.
+   * 
+   * @param detoxElement - The Detox element to check for absence of text content
+   * @param text - The text that should not be present in the element
+   * @param options - Configuration options for the assertion
+   * @param options.timeout - Maximum time to wait for the text to disappear (default: 15000ms)
+   * @param options.description - Custom description for better error messages
+   * @returns Promise that resolves when the element no longer contains the specified text
+   * @throws Will throw an error if the element still contains the text within the timeout period
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.expectElementToNotHaveText(errorMessage, 'Loading...', { 
+   *   timeout: 5000, 
+   *   description: 'Error message should not show loading text' 
+   * });
+   * ```
    */
   static async expectElementToNotHaveText(
     detoxElement: DetoxElement,
@@ -128,7 +193,23 @@ export default class Assertions {
   }
 
   /**
-   * Assert element has specific label with auto-retry
+   * Assert that an element has a specific accessibility label with automatic retry mechanism.
+   * 
+   * @param detoxElement - The Detox element to check for accessibility label
+   * @param label - The accessibility label that should be present on the element
+   * @param options - Configuration options for the assertion
+   * @param options.timeout - Maximum time to wait for the label to appear (default: 15000ms)
+   * @param options.description - Custom description for better error messages
+   * @returns Promise that resolves when the element has the specified label
+   * @throws Will throw an error if the element doesn't have the label within the timeout period
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.expectElementToHaveLabel(submitButton, 'Submit Form', { 
+   *   timeout: 3000, 
+   *   description: 'Submit button should have proper accessibility label' 
+   * });
+   * ```
    */
   static async expectElementToHaveLabel(
     detoxElement: DetoxElement,
@@ -153,7 +234,24 @@ export default class Assertions {
   }
 
   /**
-   * Assert text is displayed anywhere on screen with auto-retry
+   * Assert that specific text is displayed anywhere on the screen with automatic retry mechanism.
+   * 
+   * @param text - The text to search for on the screen
+   * @param options - Configuration options for the assertion
+   * @param options.timeout - Maximum time to wait for the text to appear (default: 15000ms)
+   * @param options.allowDuplicates - Whether to allow multiple instances of the text (default: false)
+   * @param options.description - Custom description for better error messages
+   * @returns Promise that resolves when the text is found on screen
+   * @throws Will throw an error if the text is not found within the timeout period
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.expectTextDisplayed('Welcome to MetaMask', { 
+   *   timeout: 10000, 
+   *   allowDuplicates: true,
+   *   description: 'Welcome message should be visible' 
+   * });
+   * ```
    */
   static async expectTextDisplayed(
     text: string,
@@ -183,7 +281,22 @@ export default class Assertions {
   }
 
   /**
-   * Assert text is not displayed anywhere on screen with auto-retry
+   * Assert that specific text is not displayed anywhere on the screen with automatic retry mechanism.
+   * 
+   * @param text - The text that should not be present on the screen
+   * @param options - Configuration options for the assertion
+   * @param options.timeout - Maximum time to wait for the text to disappear (default: 15000ms)
+   * @param options.description - Custom description for better error messages
+   * @returns Promise that resolves when the text is no longer found on screen
+   * @throws Will throw an error if the text is still present within the timeout period
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.expectTextNotDisplayed('Error occurred', { 
+   *   timeout: 5000, 
+   *   description: 'Error message should not be visible' 
+   * });
+   * ```
    */
   static async expectTextNotDisplayed(
     text: string,
@@ -207,7 +320,22 @@ export default class Assertions {
   }
 
   /**
-   * Assert element is enabled with auto-retry
+   * Assert that a toggle element is in the "on" state with automatic retry mechanism.
+   * 
+   * @param detoxElement - The Detox toggle element to check
+   * @param options - Configuration options for the assertion
+   * @param options.timeout - Maximum time to wait for the toggle state (default: 15000ms)
+   * @param options.description - Custom description for better error messages
+   * @returns Promise that resolves when the toggle is in the "on" state
+   * @throws Will throw an error if the toggle is not "on" within the timeout period
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.expectToggleToBeOn(notificationsToggle, { 
+   *   timeout: 3000, 
+   *   description: 'Notifications toggle should be enabled' 
+   * });
+   * ```
    */
   static async expectToggleToBeOn(
     detoxElement: DetoxElement,
@@ -224,7 +352,8 @@ export default class Assertions {
           const el = (await Utilities.waitForReadyState(
             detoxElement,
           )) as Detox.IndexableNativeElement;
-          // eslint-disable-next-line jest/valid-expect, @typescript-eslint/no-explicit-any
+          // Use Detox expect interface for toggle values - unavoidable any due to Detox API limitations
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (expect(el) as any).toHaveToggleValue(true);
         } catch (error) {
           // Log attributes for debugging
@@ -245,7 +374,22 @@ export default class Assertions {
   }
 
   /**
-   * Assert element is disabled with auto-retry
+   * Assert that a toggle element is in the "off" state with automatic retry mechanism.
+   * 
+   * @param detoxElement - The Detox toggle element to check
+   * @param options - Configuration options for the assertion
+   * @param options.timeout - Maximum time to wait for the toggle state (default: 15000ms)
+   * @param options.description - Custom description for better error messages
+   * @returns Promise that resolves when the toggle is in the "off" state
+   * @throws Will throw an error if the toggle is not "off" within the timeout period
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.expectToggleToBeOff(biometricsToggle, { 
+   *   timeout: 3000, 
+   *   description: 'Biometrics toggle should be disabled' 
+   * });
+   * ```
    */
   static async expectToggleToBeOff(
     detoxElement: DetoxElement,
@@ -262,7 +406,8 @@ export default class Assertions {
           const el = (await Utilities.waitForReadyState(
             detoxElement,
           )) as Detox.IndexableNativeElement;
-          // eslint-disable-next-line jest/valid-expect, @typescript-eslint/no-explicit-any
+          // Use Detox expect interface for toggle values - unavoidable any due to Detox API limitations
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (expect(el) as any).toHaveToggleValue(false);
         } catch (error) {
           throw new Error(
@@ -281,6 +426,19 @@ export default class Assertions {
     );
   }
 
+  /**
+   * Verify that actual text matches expected text exactly.
+   * 
+   * @param actualText - The actual text to compare
+   * @param expectedText - The expected text to match against
+   * @returns Promise that resolves when texts match
+   * @throws Will throw an error if texts don't match with detailed comparison
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.checkIfTextMatches(element.getText(), 'Expected Value');
+   * ```
+   */
   static async checkIfTextMatches(
     actualText: string,
     expectedText: string,
@@ -300,6 +458,19 @@ export default class Assertions {
     }
   }
 
+  /**
+   * Verify that two objects are deeply equal.
+   * 
+   * @param actualObject - The actual object to compare
+   * @param expectedObject - The expected object to match against
+   * @returns Promise that resolves when objects match
+   * @throws Will throw an error if objects don't match with detailed comparison
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.checkIfObjectsMatch(responseData, expectedResponse);
+   * ```
+   */
   static async checkIfObjectsMatch(
     actualObject: object,
     expectedObject: object,
@@ -323,6 +494,19 @@ export default class Assertions {
     }
   }
 
+  /**
+   * Verify that an array has the expected length.
+   * 
+   * @param array - The array to check
+   * @param expectedLength - The expected length of the array
+   * @returns Promise that resolves when array has correct length
+   * @throws Will throw an error if array length doesn't match expected value
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.checkIfArrayHasLength(searchResults, 5);
+   * ```
+   */
   static async checkIfArrayHasLength(
     array: unknown[],
     expectedLength: number,
@@ -346,6 +530,18 @@ export default class Assertions {
     }
   }
 
+  /**
+   * Verify that a value is defined (not null, undefined, or falsy, except for 0).
+   * 
+   * @param value - The value to check for definition
+   * @returns Promise that resolves when value is defined
+   * @throws Will throw an error if value is undefined, null, or falsy (except 0)
+   * 
+   * @example
+   * ```typescript
+   * await Assertions.checkIfValueIsDefined(apiResponse.data);
+   * ```
+   */
   static async checkIfValueIsDefined(value: unknown): Promise<void> {
     // 0 evaluates to false, so we need to handle it separately
     if (typeof value === 'number') {
@@ -500,7 +696,8 @@ export default class Assertions {
     const el = (await detoxElement) as Detox.IndexableNativeElement;
     // Use Detox's expect which has toExist method
     // Use Detox's expect syntax for element existence
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, jest/valid-expect
+    // Use Detox expect interface for element existence - unavoidable any due to Detox API limitations
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (expect(el) as any).toExist();
   }
 
@@ -623,7 +820,8 @@ export default class Assertions {
   static async checkIfToggleIsOn(detoxElement: DetoxElement): Promise<void> {
     const el = (await detoxElement) as Detox.IndexableNativeElement;
     // Use Detox's expect syntax for toggle values
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, jest/valid-expect
+    // Use Detox expect interface for toggle values - unavoidable any due to Detox API limitations
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (expect(el) as any).toHaveToggleValue(true);
   }
 
@@ -634,7 +832,8 @@ export default class Assertions {
   static async checkIfToggleIsOff(detoxElement: DetoxElement): Promise<void> {
     const el = (await detoxElement) as Detox.IndexableNativeElement;
     // Use Detox's expect syntax for toggle values
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, jest/valid-expect
+    // Use Detox expect interface for toggle values - unavoidable any due to Detox API limitations
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (expect(el) as any).toHaveToggleValue(false);
   }
 

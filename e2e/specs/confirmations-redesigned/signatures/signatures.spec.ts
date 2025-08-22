@@ -1,5 +1,5 @@
 'use strict';
-import Assertions from '../../../utils/Assertions.js';
+import { Assertions } from '../../../framework';
 import Browser from '../../../pages/Browser/BrowserView';
 import FooterActions from '../../../pages/Browser/Confirmations/FooterActions';
 import FixtureBuilder from '../../../fixtures/fixture-builder.js';

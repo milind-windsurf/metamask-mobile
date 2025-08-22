@@ -20,7 +20,7 @@ import QuotesView from '../../pages/Ramps/QuotesView';
 import { startMockServer, stopMockServer } from '../../api-mocking/mock-server';
 import { mockEvents } from '../../api-mocking/mock-config/mock-events';
 import { getEventsPayloads } from '../analytics/helpers';
-import SoftAssert from '../../utils/SoftAssert';
+import { SoftAssert } from '../../framework';
 
 const fixtureServer = new FixtureServer();
 

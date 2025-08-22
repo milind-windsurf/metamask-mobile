@@ -17,21 +17,46 @@ const logger = createLogger({ name: 'Utilities' });
  */
 export default class Utilities {
   /**
-   * Formats an array of strings into a regex pattern string for exact matching.
+   * Format an array of strings into a regex pattern string for exact matching.
+   * 
+   * @param regexstrings - Array of strings to format into regex pattern
+   * @returns Formatted regex pattern string for exact matching
+   * 
+   * @example
+   * ```typescript
+   * const pattern = Utilities.formatForExactMatchGroup(['url1', 'url2']);
+   * // Returns: \("url1","url2"\)
+   * ```
    */
   static formatForExactMatchGroup(regexstrings: string[]): string {
     return `\\("${regexstrings.join('","')}"\\)`;
   }
 
   /**
-   * A getter method that returns a formatted string of blacklisted URLs for exact matching in a regex pattern.
+   * Get a formatted string of blacklisted URLs for exact matching in regex patterns.
+   * 
+   * @returns Formatted regex pattern string containing all blacklisted URLs
+   * 
+   * @example
+   * ```typescript
+   * const blacklistPattern = Utilities.BlacklistURLs;
+   * ```
    */
   static get BlacklistURLs(): string {
     return this.formatForExactMatchGroup(blacklistURLs);
   }
 
   /**
-   * Check if element is enabled (non-retry version)
+   * Check if an element is enabled without retry mechanism (single attempt).
+   * 
+   * @param detoxElement - The Detox element to check for enabled state
+   * @returns Promise that resolves when element is enabled
+   * @throws Will throw an error with helpful guidance if element is not enabled
+   * 
+   * @example
+   * ```typescript
+   * await Utilities.checkElementEnabled(submitButton);
+   * ```
    */
   static async checkElementEnabled(detoxElement: DetoxElement): Promise<void> {
     const el = (await detoxElement) as Detox.IndexableNativeElement;
@@ -52,7 +77,18 @@ export default class Utilities {
   }
 
   /**
-   * Wait for element to be enabled with retry mechanism
+   * Wait for an element to become enabled with automatic retry mechanism.
+   * 
+   * @param detoxElement - The Detox element to wait for
+   * @param timeout - Maximum time to wait in milliseconds (default: 3500ms)
+   * @param interval - Retry interval in milliseconds (default: 100ms)
+   * @returns Promise that resolves when element becomes enabled
+   * @throws Will throw an error if element doesn't become enabled within timeout
+   * 
+   * @example
+   * ```typescript
+   * await Utilities.waitForElementToBeEnabled(submitButton, 5000, 200);
+   * ```
    */
   static async waitForElementToBeEnabled(
     detoxElement: DetoxElement,
@@ -67,8 +103,17 @@ export default class Utilities {
   }
 
   /**
-   * Check if element is actually tappable (not obscured by other elements)
-   * Android-specific check for element obscuration
+   * Check if an element is actually tappable and not obscured by other elements.
+   * Includes Android-specific checks for element obscuration and accessibility.
+   * 
+   * @param detoxElement - The Detox element to check for obscuration
+   * @returns Promise that resolves when element is not obscured
+   * @throws Will throw an error if element is obscured or not tappable
+   * 
+   * @example
+   * ```typescript
+   * await Utilities.checkElementNotObscured(overlayButton);
+   * ```
    */
   static async checkElementNotObscured(
     detoxElement: DetoxElement,
@@ -121,7 +166,21 @@ export default class Utilities {
   }
 
   /**
-   * Check if element is stable (non-retry version)
+   * Check if an element is stable (not moving) by monitoring its position over time.
+   * Single attempt without retry mechanism.
+   * 
+   * @param detoxElement - The Detox element to check for stability
+   * @param options - Configuration options for stability checking
+   * @param options.timeout - Maximum time to wait for stability (default: 2000ms)
+   * @param options.interval - Check interval in milliseconds (default: 200ms)
+   * @param options.stableCount - Number of consecutive stable checks required (default: 3)
+   * @returns Promise that resolves when element becomes stable
+   * @throws Will throw an error if element doesn't stabilize within timeout
+   * 
+   * @example
+   * ```typescript
+   * await Utilities.checkElementStable(animatedElement, { timeout: 3000, stableCount: 5 });
+   * ```
    */
   static async checkElementStable(
     detoxElement: DetoxElement,
@@ -182,7 +241,21 @@ export default class Utilities {
   }
 
   /**
-   * Waits for an element to become stable (not moving) by checking its position multiple times.
+   * Wait for an element to become stable (not moving) with automatic retry mechanism.
+   * Monitors element position over time to ensure it has stopped moving.
+   * 
+   * @param detoxElement - The Detox element to wait for stability
+   * @param options - Configuration options for stability checking
+   * @param options.timeout - Maximum time to wait for stability (default: 5000ms)
+   * @param options.interval - Check interval in milliseconds
+   * @param options.stableCount - Number of consecutive stable checks required
+   * @returns Promise that resolves when element becomes stable
+   * @throws Will throw an error if element doesn't stabilize within timeout
+   * 
+   * @example
+   * ```typescript
+   * await Utilities.waitForElementToStopMoving(carouselItem, { timeout: 8000 });
+   * ```
    */
   static async waitForElementToStopMoving(
     detoxElement: DetoxElement,
@@ -199,7 +272,25 @@ export default class Utilities {
   }
 
   /**
-   * Check element ready state (non-retry version)
+   * Check if an element is in a ready state for interaction (visible, enabled, stable).
+   * Single attempt without retry mechanism.
+   * 
+   * @param detoxElement - The Detox element to check readiness
+   * @param options - Configuration options for readiness checking
+   * @param options.timeout - Maximum time for individual checks
+   * @param options.checkStability - Whether to verify element is not moving (default: false)
+   * @param options.checkVisibility - Whether to verify element is visible (default: true)
+   * @param options.checkEnabled - Whether to verify element is enabled (default: true)
+   * @returns Promise resolving to the ready element
+   * @throws Will throw an error if element is not ready
+   * 
+   * @example
+   * ```typescript
+   * const readyElement = await Utilities.checkElementReadyState(button, {
+   *   checkStability: true,
+   *   timeout: 5000
+   * });
+   * ```
    */
   static async checkElementReadyState(
     detoxElement: DetoxElement,
@@ -262,7 +353,25 @@ export default class Utilities {
   }
 
   /**
-   * Wait for element to be in a ready state (visible, enabled, stable)
+   * Wait for an element to be in a ready state for interaction with automatic retry mechanism.
+   * Combines visibility, enabled state, and stability checks as needed.
+   * 
+   * @param detoxElement - The Detox element to wait for readiness
+   * @param options - Configuration options for readiness checking
+   * @param options.timeout - Maximum time to wait for readiness (default: 15000ms)
+   * @param options.checkStability - Whether to verify element is not moving (default: false)
+   * @param options.skipVisibilityCheck - Whether to skip visibility verification (default: false)
+   * @param options.elemDescription - Description for better error messages
+   * @returns Promise resolving to the ready element
+   * @throws Will throw an error if element doesn't become ready within timeout
+   * 
+   * @example
+   * ```typescript
+   * const readyButton = await Utilities.waitForReadyState(submitButton, {
+   *   checkStability: true,
+   *   elemDescription: 'Submit form button'
+   * });
+   * ```
    */
   static async waitForReadyState(
     detoxElement: DetoxElement,
@@ -286,15 +395,26 @@ export default class Utilities {
   }
 
   /**
-   * Check if an element is a WebElement
+   * Check if an element is a WebElement by examining its properties and constructor.
+   * Useful for determining the correct interaction methods to use.
+   * 
+   * @param el - The element to check (can be any type)
+   * @returns True if the element is a WebElement, false otherwise
+   * 
+   * @example
+   * ```typescript
+   * const isWeb = Utilities.isWebElement(someElement);
+   * if (isWeb) {
+   *   // Use web-specific interaction methods
+   * }
+   * ```
    */
   static isWebElement(el: unknown): boolean {
     if (!el || typeof el !== 'object') {
       return false;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const webEl = el as any;
+    const webEl = el as Record<string, unknown>;
     return !!(
       webEl?.webViewElement ||
       typeof webEl?.runScript === 'function' ||

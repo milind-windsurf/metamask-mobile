@@ -6,7 +6,7 @@ import {
   withMultichainAccountDetailsEnabled,
 } from './common';
 import AccountDetails from '../../pages/MultichainAccounts/AccountDetails';
-import Assertions from '../../utils/Assertions.js';
+import { Assertions } from '../../framework';
 import ExportCredentials from '../../pages/MultichainAccounts/ExportCredentials';
 import RevealPrivateKey from '../../pages/Settings/SecurityAndPrivacy/RevealPrivateKeyView';
 import { completeSrpQuiz } from '../multisrp/utils';

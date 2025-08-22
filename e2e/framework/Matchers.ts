@@ -1,11 +1,22 @@
 import { web, system } from 'detox';
 
 /**
- * Utility class for matching (locating) UI elements
+ * Utility class for matching (locating) UI elements across native and web contexts.
+ * Provides comprehensive element selection methods with proper type safety and error handling.
  */
 export default class Matchers {
   /**
-   * Get element by ID with optional index
+   * Get a native element by its ID with optional index selection.
+   * 
+   * @param elementId - The ID or regex pattern to match against element IDs
+   * @param index - Optional zero-based index when multiple elements match (default: undefined for first match)
+   * @returns Promise resolving to the matched Detox native element
+   * 
+   * @example
+   * ```typescript
+   * const button = await Matchers.getElementByID('submit-button');
+   * const thirdItem = await Matchers.getElementByID('list-item', 2);
+   * ```
    */
   static async getElementByID(
     elementId: string | RegExp,
@@ -19,7 +30,17 @@ export default class Matchers {
   }
 
   /**
-   * Get element by text with optional index
+   * Get a native element by its visible text content with optional index selection.
+   * 
+   * @param text - The exact text content to search for
+   * @param index - Zero-based index when multiple elements match (default: 0)
+   * @returns Promise resolving to the matched Detox native element
+   * 
+   * @example
+   * ```typescript
+   * const loginButton = await Matchers.getElementByText('Login');
+   * const secondOption = await Matchers.getElementByText('Option', 1);
+   * ```
    */
   static async getElementByText(
     text: string,
@@ -31,9 +52,19 @@ export default class Matchers {
   }
 
   /**
-   * Get element that matches by id and label
-   * This strategy matches elements by combining 2 matchers together.
-   * Elements returned match the provided ID and Label at the same time.
+   * Get a native element that matches both ID and accessibility label simultaneously.
+   * This strategy combines two matchers for more precise element selection.
+   * 
+   * @param id - The element ID to match
+   * @param label - The accessibility label (string or regex) to match
+   * @param index - Zero-based index when multiple elements match (default: 0)
+   * @returns Promise resolving to the matched Detox native element
+   * 
+   * @example
+   * ```typescript
+   * const submitBtn = await Matchers.getElementByIDAndLabel('btn-submit', 'Submit Form');
+   * const dynamicBtn = await Matchers.getElementByIDAndLabel('btn-action', /^Submit|Save$/);
+   * ```
    */
   static async getElementByIDAndLabel(
     id: string,
@@ -46,7 +77,17 @@ export default class Matchers {
   }
 
   /**
-   * Get element by label (accessibility label on iOS, content description on Android)
+   * Get a native element by its accessibility label (iOS) or content description (Android).
+   * 
+   * @param label - The accessibility label to search for
+   * @param index - Zero-based index when multiple elements match (default: 0)
+   * @returns Promise resolving to the matched Detox native element
+   * 
+   * @example
+   * ```typescript
+   * const closeButton = await Matchers.getElementByLabel('Close dialog');
+   * const secondTab = await Matchers.getElementByLabel('Tab', 1);
+   * ```
    */
   static async getElementByLabel(
     label: string,
@@ -58,7 +99,16 @@ export default class Matchers {
   }
 
   /**
-   * Get element by descendant relationship
+   * Get a native element by finding a parent that contains a specific child element.
+   * 
+   * @param parentElement - The ID of the parent element
+   * @param childElement - The ID of the child element that must exist within the parent
+   * @returns Promise resolving to the parent Detox native element
+   * 
+   * @example
+   * ```typescript
+   * const form = await Matchers.getElementByDescendant('login-form', 'password-field');
+   * ```
    */
   static async getElementByDescendant(
     parentElement: string,
@@ -68,7 +118,16 @@ export default class Matchers {
   }
 
   /**
-   * Get element with ancestor relationship
+   * Get a native element by finding a child that has a specific ancestor element.
+   * 
+   * @param childElement - The ID of the child element to find
+   * @param parentElement - The ID of the ancestor element that must contain the child
+   * @returns Promise resolving to the child Detox native element
+   * 
+   * @example
+   * ```typescript
+   * const fieldInForm = await Matchers.getElementIDWithAncestor('email-field', 'login-form');
+   * ```
    */
   static async getElementIDWithAncestor(
     childElement: string,
@@ -78,9 +137,17 @@ export default class Matchers {
   }
 
   /**
-   * Get Native WebView instance by elementId
-   * Because Android Webview might have more that one WebView instance present on the main activity,
-   * the correct element is selected based on its parent element id.
+   * Get a WebView instance by its element ID with platform-specific optimizations.
+   * On Android, multiple WebView instances may exist, so the correct one is selected
+   * based on its parent element ID for better reliability.
+   * 
+   * @param elementId - The ID of the WebView element
+   * @returns The Detox WebView element for web interaction
+   * 
+   * @example
+   * ```typescript
+   * const webView = Matchers.getWebViewByID('dapp-webview');
+   * ```
    */
   static getWebViewByID(elementId: string): Detox.WebViewElement {
     if (process.env.CI) {
@@ -92,7 +159,16 @@ export default class Matchers {
   }
 
   /**
-   * Get element by web ID within a webview
+   * Get a web element by its ID within a specific WebView container.
+   * 
+   * @param webviewID - The ID of the WebView container
+   * @param innerID - The ID of the element within the WebView
+   * @returns Promise resolving to the web element
+   * 
+   * @example
+   * ```typescript
+   * const connectButton = await Matchers.getElementByWebID('dapp-webview', 'connect-wallet');
+   * ```
    */
   static async getElementByWebID(
     webviewID: string,
@@ -103,7 +179,16 @@ export default class Matchers {
   }
 
   /**
-   * Get element by CSS selector within a webview
+   * Get a web element by CSS selector within a specific WebView container.
+   * 
+   * @param webviewID - The ID of the WebView container
+   * @param selector - The CSS selector to match elements
+   * @returns Promise resolving to the first matching web element
+   * 
+   * @example
+   * ```typescript
+   * const submitBtn = await Matchers.getElementByCSS('dapp-webview', 'button[type="submit"]');
+   * ```
    */
   static async getElementByCSS(
     webviewID: string,
@@ -116,7 +201,16 @@ export default class Matchers {
   }
 
   /**
-   * Get element by XPath within a webview
+   * Get a web element by XPath expression within a specific WebView container.
+   * 
+   * @param webviewID - The ID of the WebView container
+   * @param xpath - The XPath expression to locate the element
+   * @returns Promise resolving to the matching web element
+   * 
+   * @example
+   * ```typescript
+   * const element = await Matchers.getElementByXPath('dapp-webview', '//button[text()="Connect"]');
+   * ```
    */
   static async getElementByXPath(
     webviewID: string,
@@ -127,7 +221,16 @@ export default class Matchers {
   }
 
   /**
-   * Get element by href within a webview
+   * Get a web element by its href attribute within a specific WebView container.
+   * 
+   * @param webviewID - The ID of the WebView container
+   * @param url - The href URL to match against
+   * @returns Promise resolving to the first matching web element
+   * 
+   * @example
+   * ```typescript
+   * const link = await Matchers.getElementByHref('dapp-webview', 'https://metamask.io');
+   * ```
    */
   static async getElementByHref(
     webviewID: string,
@@ -140,10 +243,18 @@ export default class Matchers {
   }
 
   /**
-   * Creates a Detox matcher for identifying an element by its ID
-   * This method does not create an element but instead generates only a matcher.
-   * The purpose is to create a matcher that can be used for identification purposes,
-   * without performing any actions on the element.
+   * Create a Detox matcher for identifying an element by its ID without creating an element instance.
+   * This method generates only a matcher that can be used for identification purposes
+   * or combined with other matchers, without performing any actions on the element.
+   * 
+   * @param selectorString - The ID string to create a matcher for
+   * @returns Promise resolving to a Detox native matcher
+   * 
+   * @example
+   * ```typescript
+   * const matcher = await Matchers.getIdentifier('submit-button');
+   * // Use matcher for complex matching scenarios
+   * ```
    */
   static async getIdentifier(
     selectorString: string,
@@ -152,7 +263,17 @@ export default class Matchers {
   }
 
   /**
-   * Get system dialogs in the system-level (e.g. permissions, alerts, etc.), by text
+   * Get system-level dialog elements (permissions, alerts, notifications) by their text content.
+   * These are system dialogs that appear outside the app's UI context.
+   * 
+   * @param text - The text content of the system dialog element
+   * @returns Promise resolving to the system element
+   * 
+   * @example
+   * ```typescript
+   * const allowButton = await Matchers.getSystemElementByText('Allow');
+   * const permissionDialog = await Matchers.getSystemElementByText('Camera Permission');
+   * ```
    */
   static async getSystemElementByText(
     text: string,

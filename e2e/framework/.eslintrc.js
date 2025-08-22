@@ -1,13 +1,23 @@
 // eslint-disable-next-line import/no-commonjs
 module.exports = {
+  extends: ['../../.eslintrc.js'],
   overrides: [
     {
       files: ['**/*.{js,ts}'],
       rules: {
-        // E2E Framework Best Practices (starting with warnings, we will be changing to errors when the migration is complete)
+        // E2E Framework Best Practices - upgraded to errors after migration completion
         'no-console': 'off',
+        '@typescript-eslint/no-explicit-any': 'error',
+        '@typescript-eslint/explicit-function-return-type': 'warn',
+        '@typescript-eslint/prefer-nullish-coalescing': 'warn',
+        '@typescript-eslint/prefer-optional-chain': 'warn',
+        'no-trailing-spaces': 'error',
+        'import/order': ['error', {
+          'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          'newlines-between': 'never'
+        }],
         'no-restricted-syntax': [
-          'warn',
+          'error',
           {
             selector:
               "CallExpression[callee.object.name='TestHelpers'][callee.property.name='delay']",
@@ -21,7 +31,7 @@ module.exports = {
       files: ['**/specs/**/*.{js,ts}'],
       rules: {
         'no-restricted-syntax': [
-          'warn',
+          'error',
           {
             selector:
               "CallExpression[callee.object.name='TestHelpers'][callee.property.name='delay']",

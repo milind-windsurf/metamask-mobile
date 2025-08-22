@@ -14,7 +14,7 @@ import { loginToApp } from '../../viewHelper';
 import WalletView from '../../pages/wallet/WalletView';
 import AccountListBottomSheet from '../../pages/wallet/AccountListBottomSheet.js';
 import ImportAccountView from '../../pages/importAccount/ImportAccountView.js';
-import Assertions from '../../utils/Assertions.js';
+import { Assertions } from '../../framework';
 import { AccountListBottomSheetSelectorsText } from '../../selectors/wallet/AccountListBottomSheet.selectors.js';
 import AddAccountBottomSheet from '../../pages/wallet/AddAccountBottomSheet.js';
 import SuccessImportAccountView from '../../pages/importAccount/SuccessImportAccountView';

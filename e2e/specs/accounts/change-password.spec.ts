@@ -19,7 +19,7 @@ import ChangePasswordView from '../../pages/Settings/SecurityAndPrivacy/ChangePa
 import LoginView from '../../pages/wallet/LoginView';
 import Matchers from '../../utils/Matchers.js';
 import AccountListBottomSheet from '../../pages/wallet/AccountListBottomSheet.js';
-import Assertions from '../../utils/Assertions.js';
+import { Assertions } from '../../framework';
 import ToastModal from '../../pages/wallet/ToastModal';
 
 const fixtureServer = new FixtureServer();

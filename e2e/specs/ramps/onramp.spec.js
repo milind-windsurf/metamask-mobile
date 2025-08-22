@@ -11,7 +11,7 @@ import BuildQuoteView from '../../pages/Ramps/BuildQuoteView';
 import BuyGetStartedView from '../../pages/Ramps/BuyGetStartedView';
 import QuotesView from '../../pages/Ramps/QuotesView';
 import { withFixtures } from '../../fixtures/fixture-helper';
-import SoftAssert from '../../utils/SoftAssert';
+import { SoftAssert } from '../../framework';
 import { getEventsPayloads } from '../analytics/helpers';
 import { startMockServer, stopMockServer } from '../../api-mocking/mock-server';
 import { getMockServerPort } from '../../fixtures/utils';
