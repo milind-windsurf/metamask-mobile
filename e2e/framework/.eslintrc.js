@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-commonjs
 module.exports = {
+  extends: ['../../.eslintrc.js'],
   overrides: [
     {
       files: ['**/*.{js,ts}'],
@@ -10,6 +11,7 @@ module.exports = {
         '@typescript-eslint/explicit-function-return-type': 'warn',
         '@typescript-eslint/prefer-nullish-coalescing': 'warn',
         '@typescript-eslint/prefer-optional-chain': 'warn',
+        'no-trailing-spaces': 'error',
         'import/order': ['error', {
           'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
           'newlines-between': 'never'
