@@ -12,7 +12,7 @@ import {
   getBalanceMocks,
   INFURA_MOCK_BALANCE_1_ETH,
 } from '../../api-mocking/mock-responses/balance-mocks';
-import SoftAssert from '../../utils/SoftAssert';
+import { SoftAssert } from '../../framework';
 import { MockttpServer } from 'mockttp';
 
 const balanceMock = getBalanceMocks([

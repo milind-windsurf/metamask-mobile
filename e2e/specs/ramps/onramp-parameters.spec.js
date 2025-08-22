@@ -18,7 +18,7 @@ import { startMockServer, stopMockServer } from '../../api-mocking/mock-server';
 import { getMockServerPort } from '../../fixtures/utils';
 import { mockEvents } from '../../api-mocking/mock-config/mock-events';
 import { getEventsPayloads } from '../analytics/helpers';
-import SoftAssert from '../../utils/SoftAssert';
+import { SoftAssert } from '../../framework';
 
 const unitedStatesRegion = {
   currencies: ['/currencies/fiat/usd'],
