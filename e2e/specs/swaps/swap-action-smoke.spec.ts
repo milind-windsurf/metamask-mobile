@@ -18,13 +18,13 @@ import {
   getMockServerPort,
 } from '../../fixtures/utils.js';
 import { SmokeTrade } from '../../tags.js';
-import Assertions from '../../utils/Assertions.js';
+import { Assertions } from '../../framework';
 import ActivitiesView from '../../pages/Transactions/ActivitiesView.js';
 import { ActivitiesViewSelectorsText } from '../../selectors/Transactions/ActivitiesView.selectors';
 import { getEventsPayloads } from '../analytics/helpers';
 import { stopMockServer } from '../../api-mocking/mock-server.js';
 import { startMockServer } from './helpers/swap-mocks';
-import SoftAssert from '../../utils/SoftAssert.ts';
+import { SoftAssert } from '../../framework';
 import { prepareSwapsTestEnvironment } from './helpers/prepareSwapsTestEnvironment';
 import { submitSwapUnifiedUI } from './helpers/swapUnifiedUI';
 import { loginToApp } from '../../viewHelper';

@@ -12,7 +12,7 @@ import FixtureServer from '../../fixtures/fixture-server.js';
 import WalletView from '../../pages/wallet/WalletView';
 import TestHelpers from '../../helpers.js';
 import { SmokeTrade } from '../../tags.js';
-import Assertions from '../../utils/Assertions.js';
+import { Assertions } from '../../framework';
 import Ganache from '../../../app/util/test/ganache.js';
 import AdvancedSettingsView from '../../pages/Settings/AdvancedView.js';
 import SettingsView from '../../pages/Settings/SettingsView';
@@ -33,7 +33,7 @@ import { stopMockServer } from '../../api-mocking/mock-server.js';
 import { localNodeOptions, testSpecificMock } from '../bridge/constants.js';
 import { Mockttp, MockttpServer } from 'mockttp';
 import { getEventsPayloads } from '../analytics/helpers.js';
-import SoftAssert from '../../utils/SoftAssert.js';
+import { SoftAssert } from '../../framework';
 
 const fixtureServer = new FixtureServer();
 

@@ -16,14 +16,14 @@ import TestHelpers from '../../helpers.js';
 import FixtureServer from '../../fixtures/fixture-server.js';
 import { getFixturesServerPort } from '../../fixtures/utils.js';
 import { SmokeTrade } from '../../tags.js';
-import Assertions from '../../utils/Assertions.js';
+import { Assertions } from '../../framework';
 import { mockEvents } from '../../api-mocking/mock-config/mock-events.js';
 import { getEventsPayloads } from '../analytics/helpers.ts';
 import {
   startMockServer,
   stopMockServer,
 } from '../../api-mocking/mock-server.js';
-import SoftAssert from '../../utils/SoftAssert.ts';
+import { SoftAssert } from '../../framework';
 import { prepareSwapsTestEnvironment } from '../swaps/helpers/prepareSwapsTestEnvironment.ts';
 import SwapView from '../../pages/swaps/SwapView.ts';
 import QuotesModal from '../../pages/swaps/QuoteModal.ts';
