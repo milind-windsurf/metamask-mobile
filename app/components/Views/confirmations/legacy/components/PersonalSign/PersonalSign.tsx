@@ -210,7 +210,7 @@ const PersonalSign = ({
   };
 
   const renderMessageText = () => {
-    const textChild = escapeSpecialUnicode(msgHexToText(messageParams.data))
+    const textChild = escapeSpecialUnicode(msgHexToText(messageParams.data as string))
       .split('\n')
       .map((line: string, i: number) => (
         <Text
@@ -252,7 +252,7 @@ const PersonalSign = ({
     <ExpandedMessage
       currentPageInformation={currentPageInformation}
       renderMessage={renderMessageText}
-      toggleExpandedMessage={toggleExpandedMessage}
+      toggleExpandedMessage={toggleExpandedMessage || (() => {})}
     />
   ) : (
     <SignatureRequest
@@ -261,7 +261,7 @@ const PersonalSign = ({
       onConfirm={confirmSignature}
       currentPageInformation={currentPageInformation}
       showExpandedMessage={showExpandedMessage}
-      toggleExpandedMessage={toggleExpandedMessage}
+      toggleExpandedMessage={toggleExpandedMessage || (() => {})}
       truncateMessage={truncateMessage}
       type="personal_sign"
       fromAddress={messageParams.from}

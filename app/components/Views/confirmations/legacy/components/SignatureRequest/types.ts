@@ -1,4 +1,4 @@
-import { SecurityAlertResponse } from '../BlockaidBanner/BlockaidBanner.types';
+import { SecurityAlertResponse as ImportedSecurityAlertResponse } from '../BlockaidBanner/BlockaidBanner.types';
 
 export interface MessageInfo {
   origin: string;
@@ -15,8 +15,15 @@ export interface PageMeta {
   url: string;
 }
 
+export interface SecurityAlertResponse {
+  result_type: string;
+  reason: string;
+  description: string;
+  features?: string[];
+}
+
 export interface MessageParams {
-  data: string;
+  data: string | object | any[];
   from: string;
   metamaskId: string;
   meta?: PageMeta;
