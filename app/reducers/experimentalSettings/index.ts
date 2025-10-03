@@ -5,7 +5,7 @@ import {
   SetSecurityAlertsEnabled,
 } from '../../actions/experimental';
 
-const initialState = {
+export const initialState = {
   securityAlertsEnabled: true,
 };
 

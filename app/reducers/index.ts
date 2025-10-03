@@ -114,9 +114,7 @@ export interface RootState {
   // TODO: Replace "any" with type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rpcEvents: any;
-  // TODO: Replace "any" with type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  accounts: any;
+  accounts: StateFromReducer<typeof accountsReducer>;
   inpageProvider: StateFromReducer<typeof inpageProviderReducer>;
   confirmationMetrics: StateFromReducer<typeof confirmationMetricsReducer>;
   originThrottling: StateFromReducer<typeof originThrottlingReducer>;

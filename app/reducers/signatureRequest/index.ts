@@ -9,7 +9,7 @@ interface ActionType {
   securityAlertResponse?: SecurityAlertResponse;
 }
 
-const initialState: StateType = {
+export const initialState: StateType = {
   securityAlertResponse: undefined,
 };
 
