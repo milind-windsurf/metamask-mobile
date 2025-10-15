@@ -34,32 +34,32 @@ const CHAIN_ID_TO_NETWORK_ID: Record<string, string> = {
     ENS_SUPPORTED_NETWORK_IDS[NetworkType.mainnet],
 };
 
-export function getCachedENSName(address: string, chainId: string): string | undefined {
-  const networkHasEnsSupport = ENS_SUPPORTED_CHAIN_IDS.includes(chainId);
+export function getCachedENSName(address: string, chainId?: string): string | undefined {
+  const networkHasEnsSupport = chainId && ENS_SUPPORTED_CHAIN_IDS.includes(chainId);
   if (!networkHasEnsSupport) {
     return undefined;
   }
 
-  const networkId = CHAIN_ID_TO_NETWORK_ID[chainId];
+  const networkId = CHAIN_ID_TO_NETWORK_ID[chainId!];
   const cacheEntry = ENSCache.cache[networkId + address];
 
   return cacheEntry?.name;
 }
 
-export async function doENSReverseLookup(address: string, chainId: string): Promise<string | undefined> {
+export async function doENSReverseLookup(address: string, chainId?: string): Promise<string | undefined> {
   const { provider } =
     Engine.context.NetworkController.getProviderAndBlockTracker();
   const { name: cachedName, timestamp } =
-    ENSCache.cache[chainId + address] || {};
+    ENSCache.cache[(chainId || '') + address] || {};
   const nowTimestamp = Date.now();
   if (timestamp && nowTimestamp - timestamp < CACHE_REFRESH_THRESHOLD) {
     return Promise.resolve(cachedName);
   }
 
-  const networkHasEnsSupport = ENS_SUPPORTED_CHAIN_IDS.includes(chainId);
+  const networkHasEnsSupport = chainId && ENS_SUPPORTED_CHAIN_IDS.includes(chainId);
 
   if (networkHasEnsSupport) {
-    const networkId = CHAIN_ID_TO_NETWORK_ID[chainId];
+    const networkId = CHAIN_ID_TO_NETWORK_ID[chainId!];
     const ens = new ENS({ provider, network: networkId });
     try {
       const name = await ens.reverse(address);
@@ -81,26 +81,27 @@ export async function doENSReverseLookup(address: string, chainId: string): Prom
   return undefined;
 }
 
-export async function doENSLookup(ensName: string, chainId: string): Promise<string | undefined> {
+export async function doENSLookup(ensName: string, chainId?: string): Promise<string | null> {
   const { provider } =
     Engine.context.NetworkController.getProviderAndBlockTracker();
 
-  const networkHasEnsSupport = ENS_SUPPORTED_CHAIN_IDS.includes(chainId);
+  const networkHasEnsSupport = chainId && ENS_SUPPORTED_CHAIN_IDS.includes(chainId);
 
   if (networkHasEnsSupport) {
-    const networkId = CHAIN_ID_TO_NETWORK_ID[chainId];
+    const networkId = CHAIN_ID_TO_NETWORK_ID[chainId!];
     const ens = new ENS({ provider, network: networkId });
     try {
       const resolvedAddress = await ens.lookup(ensName);
-      if (resolvedAddress === EMPTY_ADDRESS) return undefined;
+      if (resolvedAddress === EMPTY_ADDRESS) return null;
       return resolvedAddress;
     } catch (e) {
-      return undefined;
+      return null;
     }
   }
-  return undefined;
+  return null;
 }
 
-export function isDefaultAccountName(name: string): boolean {
+export function isDefaultAccountName(name?: string): boolean {
+  if (!name) return false;
   return regex.defaultAccount.test(name);
 }

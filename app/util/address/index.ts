@@ -615,7 +615,7 @@ export async function validateAddressOrENS(
     }
     const checksummedAddress = toChecksumAddress(toAccount);
     addressReady = true;
-    const ens = await doENSReverseLookup(checksummedAddress);
+    const ens = await doENSReverseLookup(checksummedAddress, chainId);
     if (ens) {
       toAddressName = ens;
       if (!contactAlreadySaved) {
@@ -660,14 +660,15 @@ export async function validateAddressOrENS(
     toEnsName = toAccount;
     confusableCollection = collectConfusables(toEnsName);
     const resolvedAddress = await doENSLookup(toAccount, chainId);
-    const contactAlreadySaved = checkIfAddressAlreadySaved(
-      resolvedAddress,
-      addressBook,
-      chainId,
-      internalAccounts,
-    );
 
     if (resolvedAddress) {
+      const contactAlreadySaved = checkIfAddressAlreadySaved(
+        resolvedAddress,
+        addressBook,
+        chainId,
+        internalAccounts,
+      );
+
       if (!contactAlreadySaved) {
         addToAddressToAddressBook = true;
       } else {
