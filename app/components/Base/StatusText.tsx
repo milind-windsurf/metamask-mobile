@@ -54,6 +54,7 @@ interface MainStatusTextProps {
   status: string;
   context?: string;
   testID?: string;
+  style?: import('react-native').TextStyle;
 }
 
 function StatusText({ status, context = 'transaction', testID }: MainStatusTextProps) {
